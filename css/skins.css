@@ -1,0 +1,356 @@
+/* СТИЛИ ДЛЯ СКИНОВ */
+
+/* ── Базовый DOM-элемент скина (позиционируется на канвасе) ── */
+.player-skin {
+    position: absolute;
+    width: 50px;
+    height: 60px;
+    pointer-events: none;
+    z-index: 5;
+    transition: transform 0.1s ease;
+    display: none;
+}
+
+.player-skin.active { animation: pulse-skin 2s infinite; }
+@keyframes pulse-skin {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.05); }
+}
+
+/* ── Индикатор скина ─────────────────────────────────────────── */
+.skin-indicator {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 1000;
+    box-shadow: var(--glow);
+}
+.skin-indicator:hover { transform: scale(1.1); border-color: var(--accent); }
+.skin-indicator-icon { font-size: 1.3rem; color: var(--accent); }
+
+/* ── Меню выбора скинов ──────────────────────────────────────── */
+.skins-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(8, 8, 22, 0.98);
+    border: 2px solid var(--accent);
+    border-radius: 20px;
+    padding: 28px 24px;
+    width: min(880px, 95vw);
+    z-index: 1005;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    box-shadow: 0 0 40px rgba(0,255,157,0.25);
+    backdrop-filter: blur(12px);
+}
+.skins-menu.active { opacity: 1; pointer-events: all; }
+
+.skins-title {
+    font-size: 1.8rem;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 22px;
+    text-shadow: var(--glow);
+    letter-spacing: 2px;
+}
+
+.skins-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+/* ── Карточка скина ──────────────────────────────────────────── */
+.skin-option {
+    padding: 14px 10px 12px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.skin-option:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 0 16px rgba(0,255,157,0.3);
+}
+.skin-option.selected {
+    background: rgba(0,255,157,0.08);
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(0,255,157,0.35);
+}
+.skin-option.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 8px; right: 10px;
+    color: var(--accent);
+    font-weight: bold;
+    font-size: 1rem;
+}
+.skin-option.locked { opacity: 0.55; cursor: not-allowed; }
+.skin-option.locked::before {
+    content: '🔒';
+    position: absolute;
+    top: 8px; right: 8px;
+    font-size: 1rem;
+}
+
+/* ── Превью скина (мини-турель) ──────────────────────────────── */
+.skin-preview {
+    width: 64px;
+    height: 82px;
+    margin: 0 auto 12px;
+    position: relative;
+    overflow: visible;
+}
+
+/* Гусеницы */
+.skin-preview::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 62px;
+    height: 28px;
+    border-radius: 5px;
+    background: #151e2b;
+    border: 1.5px solid rgba(0,255,157,0.25);
+}
+
+/* Корпус */
+.skin-preview::after {
+    content: '';
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 36px;
+    border-radius: 7px;
+    /* будет переопределено per-skin */
+}
+
+/* Ствол: общий слой через box-shadow вертикальный брусок */
+.skin-preview .barrel-wrap {
+    position: absolute;
+    bottom: 46px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    /* height задаётся per-skin */
+    border-radius: 3px;
+    z-index: 2;
+}
+
+/* Купол башни */
+.skin-preview .turret {
+    position: absolute;
+    bottom: 44px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    z-index: 1;
+    border: 1.5px solid;
+}
+
+/* ── 1. НЕОНОВЫЙ ─────────────────────────────────────────────── */
+.skin-preview.neon::after {
+    background: linear-gradient(160deg, #0d2a1e 0%, #0d1b2a 100%);
+    border: 1.5px solid #00ff9d;
+    box-shadow: 0 0 14px rgba(0,255,157,0.5), inset 0 0 8px rgba(0,255,157,0.1);
+}
+.skin-preview.neon .turret {
+    background: #0a1520;
+    border-color: #00ff9d;
+    box-shadow: 0 0 8px rgba(0,255,157,0.6);
+}
+.skin-preview.neon .barrel-wrap {
+    height: 32px;
+    background: #00cc7a;
+    box-shadow: 0 0 6px rgba(0,255,157,0.8);
+}
+
+/* shimmer */
+.skin-preview.neon::before {
+    background: #151e2b;
+    border-color: rgba(0,255,157,0.35);
+}
+
+/* ── 2. ЗОЛОТОЙ ──────────────────────────────────────────────── */
+.skin-preview.gold::after {
+    background: linear-gradient(160deg, #3d2a00 0%, #1e1400 100%);
+    border: 1.5px solid #ffd700;
+    box-shadow: 0 0 14px rgba(255,215,0,0.5), inset 0 0 8px rgba(255,215,0,0.1);
+}
+.skin-preview.gold .turret {
+    background: #2a1d00;
+    border-color: #ffd700;
+    box-shadow: 0 0 8px rgba(255,215,0,0.6);
+}
+.skin-preview.gold .barrel-wrap {
+    height: 28px;
+    background: linear-gradient(to top, #b8860b, #ffd700);
+    box-shadow: 0 0 6px rgba(255,215,0,0.8);
+}
+.skin-preview.gold::before { border-color: rgba(255,215,0,0.3); }
+
+/* ── 3. КАМУФЛЯЖ ─────────────────────────────────────────────── */
+.skin-preview.camo::after {
+    background:
+        radial-gradient(ellipse at 25% 30%, #4a5e20 18%, transparent 19%),
+        radial-gradient(ellipse at 70% 20%, #6b7c2f 15%, transparent 16%),
+        radial-gradient(ellipse at 50% 70%, #3d4f1a 20%, transparent 21%),
+        radial-gradient(ellipse at 80% 65%, #8a9a3f 12%, transparent 13%),
+        #556b2f;
+    border: 1.5px solid #8fbc8f;
+    box-shadow: 0 0 10px rgba(85,107,47,0.5);
+}
+.skin-preview.camo .turret {
+    background: #3a4f18;
+    border-color: #8fbc8f;
+}
+.skin-preview.camo .barrel-wrap {
+    height: 30px;
+    background: #4a5c24;
+    border: 1px solid #8fbc8f;
+}
+.skin-preview.camo::before { border-color: rgba(143,188,143,0.3); }
+
+/* ── 4. ПЛАЗМЕННЫЙ ───────────────────────────────────────────── */
+.skin-preview.plasma::after {
+    background: linear-gradient(160deg, #1a0040 0%, #0d001a 100%);
+    border: 1.5px solid #9b5bff;
+    box-shadow: 0 0 16px rgba(123,47,255,0.6), inset 0 0 10px rgba(123,47,255,0.15);
+    animation: plasma-pulse 1.5s ease-in-out infinite;
+}
+@keyframes plasma-pulse {
+    0%, 100% { box-shadow: 0 0 16px rgba(123,47,255,0.6), inset 0 0 10px rgba(123,47,255,0.15); }
+    50%       { box-shadow: 0 0 26px rgba(191,127,255,0.8), inset 0 0 14px rgba(123,47,255,0.25); }
+}
+.skin-preview.plasma .turret {
+    background: #120030;
+    border-color: #bf7fff;
+    box-shadow: 0 0 10px rgba(191,127,255,0.7);
+    animation: plasma-pulse 1.5s ease-in-out infinite;
+}
+.skin-preview.plasma .barrel-wrap {
+    height: 36px;
+    background: linear-gradient(to top, #4a00a0, #bf7fff);
+    box-shadow: 0 0 8px rgba(191,127,255,0.9);
+    animation: plasma-pulse 1.5s ease-in-out infinite;
+}
+.skin-preview.plasma::before { border-color: rgba(123,47,255,0.4); }
+
+/* ── 5. ТЕНЬ ─────────────────────────────────────────────────── */
+.skin-preview.shadow::after {
+    background: linear-gradient(160deg, #0c0c18 0%, #050508 100%);
+    border: 1.5px solid #ff2244;
+    box-shadow: 0 0 12px rgba(255,34,68,0.5), inset 0 0 8px rgba(255,34,68,0.08);
+}
+.skin-preview.shadow .turret {
+    background: #05050a;
+    border-color: #ff2244;
+    box-shadow: 0 0 8px rgba(255,34,68,0.6);
+}
+.skin-preview.shadow .barrel-wrap {
+    height: 38px;
+    background: #0c0c14;
+    border: 1px solid #ff2244;
+    box-shadow: 0 0 6px rgba(255,34,68,0.7);
+}
+.skin-preview.shadow::before { border-color: rgba(255,34,68,0.3); }
+
+/* ── Текст карточки ──────────────────────────────────────────── */
+.skin-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 5px;
+    letter-spacing: 0.5px;
+}
+.skin-description {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    line-height: 1.4;
+    min-height: 32px;
+}
+.skin-price {
+    font-size: 0.82rem;
+    color: var(--warning);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 2px;
+}
+.skin-price i.fa-check { color: var(--accent); }
+.skin-stat {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 2px;
+}
+.skin-stat i { color: var(--accent); }
+
+/* ── Уведомление ─────────────────────────────────────────────── */
+.skin-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--card-bg);
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 10010;
+    box-shadow: var(--glow);
+    animation: slideInRight 0.3s ease-out;
+    max-width: 360px;
+}
+.skin-notification-icon { font-size: 1.6rem; }
+.skin-notification-title { font-weight: 600; color: var(--text); margin-bottom: 3px; font-size: 0.9rem; }
+.skin-notification-text  { color: var(--text-secondary); font-size: 0.82rem; }
+
+/* ── Эффекты пуль ────────────────────────────────────────────── */
+.bullet-effect.neon   { background: radial-gradient(circle, #00ff9d, #009d63); box-shadow: 0 0 12px #00ff9d; }
+.bullet-effect.gold   { background: radial-gradient(circle, #ffd700, #b8860b); box-shadow: 0 0 12px #ffd700; }
+.bullet-effect.camo   { background: radial-gradient(circle, #6b8e23, #556b2f); box-shadow: 0 0 12px #6b8e23; }
+.bullet-effect.plasma { background: radial-gradient(circle, #bf7fff, #7b2fff); box-shadow: 0 0 14px #bf7fff; }
+.bullet-effect.shadow { background: radial-gradient(circle, #ff2244, #880011); box-shadow: 0 0 12px #ff2244; }
+
+/* ── Адаптивность ────────────────────────────────────────────── */
+@media (max-width: 860px) {
+    .skins-grid { grid-template-columns: repeat(3, 1fr); }
+    .skin-preview { width: 56px; height: 72px; }
+}
+@media (max-width: 560px) {
+    .skins-grid { grid-template-columns: repeat(2, 1fr); }
+    .skins-menu { padding: 18px 14px; }
+}

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Strike v1.9.0</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="css/lore.css">
+    <link rel="stylesheet" href="css/skins.css">
+</head>
+<body class="game-hidden">
+    <!-- SPLASH SCREEN -->
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-logo">Neon Strike</div>
+        <div class="splash-version">v1.8.0</div>
+        <div class="splash-bar-wrap">
+            <div class="splash-bar" id="splashBar"></div>
+        </div>
+        <div class="splash-status" id="splashStatus">Инициализация...</div>
+    </div>
+    <div class="background-effects">
+        <div class="grid-lines"></div>
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+    </div>
+
+    <div class="main-menu" id="mainMenu">
+        <div class="logo-container fade-in-up">
+            <div class="logo">Neon Strike</div>
+            <div class="tagline">CYBER COMBAT SIMULATOR v1.9.0</div>
+        </div>
+        
+        <div class="menu-buttons fade-in-up" id="gameMenuButtons">
+            <button class="menu-btn menu-btn-play" id="newGameToggleBtn">
+                <i class="fas fa-play"></i>Играть
+            </button>
+            <button class="menu-btn" id="settingsBtn">
+                <i class="fas fa-cogs"></i>Настройки
+            </button>
+            <button class="menu-btn" id="skinsBtn">
+                <i class="fas fa-paint-brush"></i>Скины оружия
+            </button>
+            <button class="menu-btn" id="loreBtn">
+                <i class="fas fa-scroll"></i>История
+            </button>
+            <button class="menu-btn" id="statsBtn">
+                <i class="fas fa-chart-bar"></i>Статистика
+            </button>
+            <button class="menu-btn" id="achievementsBtn">
+                <i class="fas fa-trophy"></i>Достижения
+            </button>
+            <button class="menu-btn" id="aboutBtn">
+                <i class="fas fa-user"></i>Об авторе
+            </button>
+        </div>
+        
+        <div class="menu-stats fade-in-up">
+            <div class="stat-box">
+                <i class="fas fa-layer-group stat-icon"></i>
+                <div class="stat-value" id="menuLevel">1</div>
+                <div class="stat-label">Уровень</div>
+            </div>
+            <div class="stat-box">
+                <i class="fas fa-coins stat-icon"></i>
+                <div class="stat-value" id="menuMoney">100</div>
+                <div class="stat-label">Деньги</div>
+            </div>
+            <div class="stat-box">
+                <i class="fas fa-tasks stat-icon"></i>
+                <div class="stat-value" id="menuProgress">10%</div>
+                <div class="stat-label">Прогресс</div>
+            </div>
+            <div class="stat-box">
+                <i class="fas fa-scroll stat-icon"></i>
+                <div class="stat-value" id="menuLore">1/12</div>
+                <div class="stat-label">История</div>
+            </div>
+            <div class="stat-box">
+                <i class="fas fa-paint-brush stat-icon"></i>
+                <div class="stat-value" id="menuSkins">1/3</div>
+                <div class="stat-label">Скины</div>
+            </div>
+            <div class="stat-box">
+                <i class="fas fa-trophy stat-icon"></i>
+                <div class="stat-value" id="menuBestScore">0</div>
+                <div class="stat-label">Рекорд</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="level-select-menu" id="levelSelectMenu">
+        <div class="level-header">
+            <div class="level-title">ВЫБОР УРОВНЯ</div>
+            <div class="level-subtitle">Проложите путь через киберпространство</div>
+        </div>
+        <div class="level-grid" id="levelGrid">
+        </div>
+        <button class="menu-btn" id="backToMenuBtn" style="width: 250px;">
+            <i class="fas fa-arrow-left"></i>Назад в меню
+        </button>
+    </div>
+
+    <div class="dev-menu" id="devMenu">
+        <h2 class="dev-title"><i class="fas fa-terminal"></i> КОНСОЛЬ РАЗРАБОТЧИКА</h2>
+        <div class="dev-cheats">
+            <div class="dev-cheat" id="devMoney">
+                <i class="fas fa-coins"></i> Бесконечные деньги
+            </div>
+            <div class="dev-cheat" id="devHealth">
+                <i class="fas fa-heart"></i> Бесконечное здоровье
+            </div>
+            <div class="dev-cheat" id="devAmmo">
+                <i class="fas fa-bullseye"></i> Бесконечные патроны
+            </div>
+            <div class="dev-cheat" id="devDamage">
+                <i class="fas fa-bolt"></i> Максимальный урон
+            </div>
+            <div class="dev-cheat" id="devUnlock">
+                <i class="fas fa-unlock"></i> Разблокировать всё
+            </div>
+            <div class="dev-cheat" id="devSkins">
+                <i class="fas fa-paint-brush"></i> Все скины
+            </div>
+            <div class="dev-cheat" id="devReset">
+                <i class="fas fa-redo"></i> Сбросить игру
+            </div>
+            <div class="dev-cheat" id="devClose">
+                <i class="fas fa-times"></i> Закрыть меню
+            </div>
+        </div>
+        <div class="dev-hint">↑↑↓↓←→←→BA</div>
+    </div>
+
+    <div class="about-overlay" id="aboutOverlay">
+        <h2 class="about-title"><i class="fas fa-user"></i> ОБ АВТОРЕ</h2>
+        <div class="about-content">
+            <div class="author-info">
+                <div class="author-name">Романуша Дмитрий Сергеевич</div>
+                <div class="author-role">Разработчик игры Neon Strike</div>
+                <div class="game-version">Версия 1.7.0 (22.05.26)</div>
+                <div class="game-update">Обновление: Щит, дробовик, достижения, дропы</div>
+            </div>
+            <div class="game-description">
+                <p>Neon Strike — киберпанк-шутер с неоновой стилистикой и динамичным геймплеем.</p>
+                <p>Разработан на HTML5 Canvas, CSS3 и JavaScript без внешних фреймворков.</p>
+            </div>
+            <div class="features-list">
+                <h3><i class="fas fa-star"></i> Особенности v1.7:</h3>
+                <ul>
+                    <li>10 уровней + финальный босс</li>
+                    <li>6 единиц оружия (+ дробовик) с улучшениями</li>
+                    <li>Щит игрока с автовосстановлением</li>
+                    <li>10 достижений с тостами-уведомлениями</li>
+                    <li>Бонусные дропы: HP, патроны, монеты</li>
+                    <li>Испытание дня (уникальное ежедневно)</li>
+                    <li>Топ-5 рекордов с деталями забега</li>
+                    <li>Трейл пуль, вспышка выстрела, пауза с UI</li>
+                </ul>
+            </div>
+        </div>
+        <button class="menu-btn" id="closeAboutBtn" style="width: 250px; margin-top: 20px;">
+            <i class="fas fa-arrow-left"></i>Назад в меню
+        </button>
+    </div>
+
+    <div class="game-complete-overlay" id="gameCompleteOverlay">
+        <div class="game-complete-glow"></div>
+        <h2 class="game-complete-title">🏆 ИГРА ПРОЙДЕНА!</h2>
+        <div class="game-complete-sub">Все 10 уровней покорены!</div>
+        <div class="game-complete-stats">
+            <div class="game-complete-stat"><i class="fas fa-star"></i><span>Финальный счёт: <span id="completeFinalScore">0</span></span></div>
+            <div class="game-complete-stat"><i class="fas fa-coins"></i><span>Деньги: <span id="completeMoney">0</span>$</span></div>
+            <div class="game-complete-stat"><i class="fas fa-scroll"></i><span>История полностью открыта!</span></div>
+        </div>
+        <div class="game-complete-buttons">
+            <button class="menu-btn" id="completeLoreBtn"><i class="fas fa-book-open"></i>Читать историю</button>
+            <button class="menu-btn" id="completeMenuBtn"><i class="fas fa-home"></i>В главное меню</button>
+        </div>
+    </div>
+
+    <div class="stats-overlay" id="statsOverlay">
+        <h2 class="stats-title"><i class="fas fa-chart-bar"></i> СТАТИСТИКА</h2>
+        <div class="stats-grid" id="statsGrid"></div>
+        <button class="menu-btn" id="closeStatsBtn" style="width:250px;margin-top:20px;">
+            <i class="fas fa-arrow-left"></i>Назад в меню
+        </button>
+    </div>
+
+    <div class="game-over-overlay" id="gameOverOverlay">
+        <h2 class="game-over-title">ПОРАЖЕНИЕ!</h2>
+        <div class="game-over-stats">
+            <div class="game-over-stat">
+                <i class="fas fa-skull"></i>
+                <span>Убито врагов: <span id="gameOverKilled">0</span>/<span id="gameOverRequired">10</span></span>
+            </div>
+            <div class="game-over-stat">
+                <i class="fas fa-coins"></i>
+                <span>Заработано: <span id="gameOverMoney">0</span>$</span>
+            </div>
+            <div class="game-over-stat">
+                <i class="fas fa-layer-group"></i>
+                <span>Уровень: <span id="gameOverLevel">1</span></span>
+            </div>
+            <div class="game-over-stat">
+                <i class="fas fa-paint-brush"></i>
+                <span>Скин: <span id="gameOverSkin">Неоновый</span></span>
+            </div>
+        </div>
+        <div class="game-over-buttons">
+            <button class="game-over-btn restart" id="gameOverRestartBtn">
+                <i class="fas fa-redo"></i> Рестарт
+            </button>
+            <button class="game-over-btn menu" id="gameOverMenuBtn">
+                <i class="fas fa-home"></i> В меню
+            </button>
+        </div>
+    </div>
+
+    <div class="level-complete-overlay" id="levelCompleteOverlay">
+        <div class="lc-badge"><i class="fas fa-check-circle"></i></div>
+        <h2 class="level-complete-title">УРОВЕНЬ ПРОЙДЕН!</h2>
+        <div class="level-reward-display" id="levelRewardDisplay">
+            <i class="fas fa-coins"></i> Награда: <span id="rewardAmount">100</span>$
+        </div>
+        <div id="loreUnlockedMessage" class="lore-unlocked-message" style="display: none;">
+            <i class="fas fa-scroll"></i> Новая часть истории открыта!
+        </div>
+        <div id="skinUnlockedMessage" class="skin-unlocked-message" style="display: none;">
+            <i class="fas fa-paint-brush"></i> Новый скин открыт!
+        </div>
+        <!-- Arsenal quick-access during pause -->
+        <div class="lc-arsenal-hint">
+            <button class="lc-arsenal-btn" id="levelArsenalBtn">
+                <i class="fas fa-gun"></i> Открыть Арсенал
+            </button>
+            <span class="lc-arsenal-sub">Улучши оружие перед следующим уровнем</span>
+        </div>
+        <div class="level-complete-buttons">
+            <button class="level-complete-btn" id="levelMenuBtn">
+                <i class="fas fa-home"></i> В меню
+            </button>
+            <button class="level-complete-btn next" id="nextLevelBtn">
+                <i class="fas fa-arrow-right"></i> Следующий уровень
+            </button>
+            <button class="level-complete-btn skins" id="levelSkinsBtn">
+                <i class="fas fa-paint-brush"></i> Скины
+            </button>
+        </div>
+    </div>
+
+    <!-- FULLSCREEN GAME LAYOUT -->
+    <div class="game-layout">
+
+        <!-- Hidden stat elements for JS compatibility -->
+        <span id="score" style="display:none">0</span>
+        <span id="level" style="display:none">1</span>
+        <span id="health" style="display:none">100</span>
+        <span id="money" style="display:none">100</span>
+        <span id="enemyCount" style="display:none">0</span>
+        <span id="loreProgress" style="display:none">1/12</span>
+        <span id="skinStatus" style="display:none">Неоновый</span>
+
+        <!-- CENTER: Game canvas + quick controls -->
+        <div class="game-center">
+            <div class="game-container">
+                <span id="currentLevelDisplay" style="display:none"></span>
+                <span id="currentLevelNumber" style="display:none">1</span>
+                <canvas id="gameCanvas" width="1280" height="720"></canvas>
+                <div id="autoFireIndicator" class="auto-fire-indicator"></div>
+            </div>
+        </div>
+
+        <!-- FLOATING ACTION BAR (right edge) -->
+        <div class="float-bar" id="floatBar">
+            <button class="float-btn float-btn-arsenal" id="openWeaponsBtn" title="Арсенал">
+                <i class="fas fa-gun"></i>
+                <span class="float-btn-label">Арсенал</span>
+            </button>
+            <button class="float-btn float-btn-quickmenu" id="quickMenuToggle" title="Меню">
+                <i class="fas fa-cog"></i>
+            </button>
+            <div class="float-menu-dropdown" id="quickMenuDropdown">
+                <button class="quick-menu-item" id="openMusicBtn">
+                    <i class="fas fa-music"></i> Музыка
+                </button>
+                <button class="quick-menu-item" id="openControlsBtn">
+                    <i class="fas fa-keyboard"></i> Управление
+                </button>
+                <button class="quick-menu-item" id="showSettingsBtn">
+                    <i class="fas fa-sliders-h"></i> Настройки
+                </button>
+                <div class="float-menu-divider"></div>
+                <button class="quick-menu-item quick-menu-danger" id="toMenuBtn">
+                    <i class="fas fa-home"></i> В меню
+                </button>
+            </div>
+        </div>
+
+        <!-- Hidden fire mode elements -->
+        <div class="toggle-switch" id="fireModeToggle" style="display:none"></div>
+        <div id="fireModeStatus" style="display:none">Одиночная</div>
+
+        <!-- MUSIC MODAL -->
+        <div class="game-modal-backdrop" id="musicModalBackdrop">
+            <div class="game-modal">
+                <div class="game-modal-header">
+                    <span><i class="fas fa-music"></i> Музыка</span>
+                    <button class="game-modal-close" id="closeMusicBtn"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="mini-music-player" id="miniMusicPlayer" style="display:flex;margin-top:0;border:none;padding:0;background:none">
+                    <div class="mini-music-info">
+                        <span class="mini-track-name" id="miniTrackName">Загрузка музыки...</span>
+                        <span class="mini-track-time" id="miniTrackTime">0:00</span>
+                    </div>
+                    <div class="mini-music-controls">
+                        <button class="mini-music-btn" id="miniMusicPrev"><i class="fas fa-step-backward"></i></button>
+                        <button class="mini-music-btn" id="miniMusicToggle"><i class="fas fa-play"></i></button>
+                        <button class="mini-music-btn" id="miniMusicNext"><i class="fas fa-step-forward"></i></button>
+                        <button class="mini-music-btn" id="miniMusicExpand"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WEAPON MODAL (fullscreen) -->
+        <div class="game-modal-backdrop arsenal-fullscreen" id="weaponModalBackdrop">
+            <div class="arsenal-fs-modal">
+                <!-- TOP HEADER -->
+                <div class="arsenal-fs-header">
+                    <div class="arsenal-fs-title"><i class="fas fa-gun"></i> АРСЕНАЛ</div>
+                    <div class="arsenal-fs-header-right">
+                        <button class="arsenal-fire-mode-btn" id="arsenalFireModeBtn" title="Режим стрельбы (F)">
+                            <i class="fas fa-dot-circle"></i> <span id="arsenalFireModeLabel">Одиночная</span>
+                        </button>
+                        <div class="arsenal-money-badge"><i class="fas fa-coins"></i> <span id="arsenalMoneyDisplay">0</span>$</div>
+                        <button class="arsenal-fs-close" id="closeWeaponsBtn"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+                <!-- BODY: sidebar + content -->
+                <div class="arsenal-fs-body">
+                    <!-- LEFT SIDEBAR: weapon list -->
+                    <aside class="arsenal-sidebar">
+                        <div class="arsenal-sidebar-tabs">
+                            <button class="arsenal-stab active" id="shopTabWeapons"><i class="fas fa-gun"></i> Оружие</button>
+                            <button class="arsenal-stab" id="shopTabPlayer"><i class="fas fa-user-shield"></i> Игрок</button>
+                        </div>
+                        <div class="weapon-shop" id="arsenalWeaponList">
+                            <div class="weapon-shop-item" data-weapon="pistol">
+                                <div class="wsi-icon"><i class="fas fa-gun"></i></div>
+                                <div class="wsi-info">
+                                    <div class="wsi-name">Пистолет</div>
+                                    <div class="wsi-stats">УРН 15 · СКР ср · ОБОЙМА 12</div>
+                                </div>
+                                <div class="wsi-action"><span class="wsi-badge wsi-owned">Куплено</span></div>
+                            </div>
+                            <div class="weapon-shop-item" data-weapon="rifle">
+                                <div class="wsi-icon"><i class="fas fa-crosshairs"></i></div>
+                                <div class="wsi-info">
+                                    <div class="wsi-name">Винтовка</div>
+                                    <div class="wsi-stats">УРН 45 · СКР низк · ОБОЙМА 8</div>
+                                </div>
+                                <div class="wsi-action"><button class="wsi-buy-btn" data-weapon="rifle" data-cost="200">200$</button></div>
+                            </div>
+                            <div class="weapon-shop-item" data-weapon="auto">
+                                <div class="wsi-icon"><i class="fas fa-stream"></i></div>
+                                <div class="wsi-info">
+                                    <div class="wsi-name">Автомат</div>
+                                    <div class="wsi-stats">УРН 12 · СКР выс · ОБОЙМА 30</div>
+                                </div>
+                                <div class="wsi-action"><button class="wsi-buy-btn" data-weapon="auto" data-cost="500">500$</button></div>
+                            </div>
+                            <div class="weapon-shop-item" data-weapon="sniper">
+                                <div class="wsi-icon"><i class="fas fa-bullseye"></i></div>
+                                <div class="wsi-info">
+                                    <div class="wsi-name">Снайперка</div>
+                                    <div class="wsi-stats">УРН 150 · СКР оч.низк · ОБОЙМА 5</div>
+                                </div>
+                                <div class="wsi-action"><button class="wsi-buy-btn" data-weapon="sniper" data-cost="1000">1000$</button></div>
+                            </div>
+                            <div class="weapon-shop-item" data-weapon="machinegun">
+                                <div class="wsi-icon"><i class="fas fa-fire"></i></div>
+                                <div class="wsi-info">
+                                    <div class="wsi-name">Пулемёт</div>
+                                    <div class="wsi-stats">УРН 18 · СКР макс · ОБОЙМА 80</div>
+                                </div>
+                                <div class="wsi-action"><button class="wsi-buy-btn" data-weapon="machinegun" data-cost="2000">2000$</button></div>
+                            </div>
+                            <div class="weapon-shop-item" data-weapon="shotgun">
+                                <div class="wsi-icon"><i class="fas fa-expand-arrows-alt"></i></div>
+                                <div class="wsi-info">
+                                    <div class="wsi-name">Дробовик</div>
+                                    <div class="wsi-stats">УРН 25×5 · ОБОЙМА 8 · КОНУС</div>
+                                </div>
+                                <div class="wsi-action"><button class="wsi-buy-btn" data-weapon="shotgun" data-cost="800">800$</button></div>
+                            </div>
+                            <div class="weapon-shop-item" data-weapon="laser">
+                                <div class="wsi-icon"><i class="fas fa-bolt"></i></div>
+                                <div class="wsi-info">
+                                    <div class="wsi-name">Лазер</div>
+                                    <div class="wsi-stats">УРН 12/тик · ЛУЧ · ПЕРЕГРЕВ</div>
+                                </div>
+                                <div class="wsi-action"><button class="wsi-buy-btn" data-weapon="laser" data-cost="1200">1200$</button></div>
+                            </div>
+                            <div class="weapon-shop-item" data-weapon="plasma">
+                                <div class="wsi-icon"><i class="fas fa-circle-dot"></i></div>
+                                <div class="wsi-info">
+                                    <div class="wsi-name">Плазма</div>
+                                    <div class="wsi-stats">УРН 50 · AoE r80 · ОБОЙМА 10</div>
+                                </div>
+                                <div class="wsi-action"><button class="wsi-buy-btn" data-weapon="plasma" data-cost="1500">1500$</button></div>
+                            </div>
+                        </div>
+                    </aside>
+                    <!-- RIGHT PANEL: details + upgrades -->
+                    <div class="arsenal-content-panel">
+                        <div id="shopPanelWeapons">
+                            <div class="arsenal-weapon-detail" id="arsenalWeaponDetail">
+                                <div class="awd-placeholder"><i class="fas fa-gun"></i><span>Выберите оружие</span></div>
+                            </div>
+                            <div class="weapon-upgrades" id="weaponUpgrades"></div>
+                        </div>
+                        <div id="shopPanelPlayer" style="display:none">
+                            <div class="player-upgrades" id="playerUpgradesPanel"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Hidden weapon-btn elements for JS compatibility -->
+                <div class="weapon-selector" style="display:none">
+                    <div class="weapon-btn active" data-weapon="pistol"></div>
+                    <div class="weapon-btn locked" data-weapon="rifle"></div>
+                    <div class="weapon-btn locked" data-weapon="auto"></div>
+                    <div class="weapon-btn locked" data-weapon="sniper"></div>
+                    <div class="weapon-btn locked" data-weapon="machinegun"></div>
+                    <div class="weapon-btn locked" data-weapon="shotgun"></div>
+                    <div class="weapon-btn locked" data-weapon="laser"></div>
+                    <div class="weapon-btn locked" data-weapon="plasma"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTROLS MODAL -->
+        <div class="game-modal-backdrop" id="controlsModalBackdrop">
+            <div class="game-modal">
+                <div class="game-modal-header">
+                    <span><i class="fas fa-keyboard"></i> Управление</span>
+                    <button class="game-modal-close" id="closeControlsBtn"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="controls-modal-list">
+                    <div class="ctrl-row"><span class="key-hint">ЛКМ</span><span>Стрельба</span></div>
+                    <div class="ctrl-row"><span class="key-hint">1–5</span><span>Выбор оружия</span></div>
+                    <div class="ctrl-row"><span class="key-hint">ПРОБЕЛ</span><span>Автоогонь</span></div>
+                    <div class="ctrl-row"><span class="key-hint">F</span><span>Режим стрельбы</span></div>
+                    <div class="ctrl-row"><span class="key-hint">ESC</span><span>Пауза</span></div>
+                    <div class="ctrl-row"><span class="key-hint">H</span><span>Меню</span></div>
+                    <div class="ctrl-row"><span class="key-hint">K</span><span>Скины</span></div>
+                    <div class="ctrl-row"><span class="key-hint">L</span><span>История</span></div>
+                    <div class="ctrl-row"><span class="key-hint">Ctrl+M</span><span>Звук</span></div>
+                    <div class="ctrl-row"><span class="key-hint">Ctrl+G</span><span>Графика</span></div>
+                    <div class="ctrl-row"><span class="key-hint">Ctrl+O</span><span>Настройки</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ending cutscene -->
+        <div class="ending-overlay" id="endingOverlay">
+            <div class="ending-title" id="endingTitle">МИССИЯ ВЫПОЛНЕНА</div>
+            <div class="ending-text" id="endingText"></div>
+            <button class="ending-close-btn" id="endingCloseBtn">В ГЛАВНОЕ МЕНЮ</button>
+        </div>
+
+        <!-- Hidden upgrade elements for JS compatibility -->
+        <span id="damageCost" style="display:none">50$</span>
+        <span id="speedCost" style="display:none">75$</span>
+        <span id="clipCost" style="display:none">100$</span>
+        <span id="skinCost" style="display:none">500$</span>
+        <button id="buySkinBtn" style="display:none"></button>
+
+    </div>
+
+    
+    <audio id="backgroundMusic" loop preload="auto">
+    </audio>
+    <audio id="shotSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-laser-gun-shot-1678.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="hitSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-electronic-retro-block-hit-2185.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="reloadSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-weapon-reload-2455.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="skinUnlockSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="enemyDeathSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-mechanical-bling-210.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="playerDamageSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.mp3" type="audio/mpeg">
+    </audio>
+    
+    <div class="music-status-indicator" id="musicStatusIndicator" title="Статус музыки">
+        <i class="fas fa-music"></i>
+        <span class="music-status-text">...</span>
+    </div>
+
+    <!-- Play modal -->
+    <div class="play-modal-backdrop" id="playModalBackdrop">
+        <div class="play-modal" id="playModal">
+            <button class="menu-btn" id="continueBtn" style="display:none">
+                <i class="fas fa-play"></i>Продолжить
+            </button>
+            <button class="menu-btn" id="newGameBtn">
+                <i class="fas fa-redo"></i>Сбросить и начать заново
+            </button>
+            <button class="menu-btn" id="levelSelectBtn">
+                <i class="fas fa-layer-group"></i>Выбор уровня
+            </button>
+            <button class="menu-btn menu-btn-infinite" id="infiniteBtn">
+                <i class="fas fa-infinity"></i>Бесконечный режим
+            </button>
+            <button class="menu-btn menu-btn-daily" id="dailyBtn">
+                <i class="fas fa-calendar-day"></i>Испытание дня
+            </button>
+            <button class="play-modal-close" id="playModalClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- PAUSE OVERLAY -->
+    <div class="pause-overlay" id="pauseOverlay">
+        <div class="pause-card">
+            <div class="pause-title"><i class="fas fa-pause"></i> ПАУЗА</div>
+            <button class="menu-btn pause-resume-btn" id="pauseResumeBtn">
+                <i class="fas fa-play"></i>Продолжить
+            </button>
+            <button class="menu-btn" id="pauseShopBtn">
+                <i class="fas fa-store"></i>Оружейный магазин
+            </button>
+            <button class="menu-btn" id="pauseMenuBtn">
+                <i class="fas fa-home"></i>В главное меню
+            </button>
+        </div>
+    </div>
+
+    <!-- ACHIEVEMENTS OVERLAY -->
+    <div class="achievements-overlay" id="achievementsOverlay">
+        <div class="achievements-title"><i class="fas fa-trophy"></i> ДОСТИЖЕНИЯ</div>
+        <div class="achievements-grid" id="achievementsGrid"></div>
+        <button class="menu-btn" id="closeAchievementsBtn" style="width:220px;margin-top:16px;">
+            <i class="fas fa-arrow-left"></i>Назад в меню
+        </button>
+    </div>
+
+    <!-- DAILY CHALLENGE RESULT OVERLAY -->
+    <div class="daily-overlay" id="dailyResultOverlay">
+        <div class="daily-card">
+            <div class="daily-title"><i class="fas fa-calendar-day"></i> ИСПЫТАНИЕ ДНЯ</div>
+            <div class="daily-date" id="dailyResultDate"></div>
+            <div class="daily-result" id="dailyResultText"></div>
+            <div class="daily-stats" id="dailyResultStats"></div>
+            <button class="menu-btn" id="closeDailyResultBtn" style="width:220px;margin-top:16px;">
+                <i class="fas fa-arrow-left"></i>В меню
+            </button>
+        </div>
+    </div>
+
+    <script src="js/game.js"></script>
+    <script src="js/settings/settings.js"></script>
+    <script src="js/settings/settings-menu.js"></script>
+    <script src="js/settings/graphics-settings.js"></script>
+    <script src="js/settings/audio-settings.js"></script>
+    <script src="js/settings/controls-settings.js"></script>
+    <script src="js/settings/game-settings.js"></script>
+    <script src="js/lore.js"></script>
+    <script src="js/skins.js"></script>
+    <script src="js/skins-integration.js"></script>
+</body>
+</html>
