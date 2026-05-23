@@ -556,8 +556,12 @@ class AudioSettings {
     }
     
     hideMenu() {
-        gamePaused = false;
         document.getElementById('audioSettingsOverlay').classList.remove('active');
+        if (window.settingsMenu) {
+            window.settingsMenu.show();
+        } else {
+            gamePaused = false;
+        }
     }
     
     applySettings() {

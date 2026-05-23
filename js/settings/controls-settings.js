@@ -373,8 +373,12 @@ class ControlsSettings {
     }
     
     hideMenu() {
-        gamePaused = false;
         document.getElementById('controlsSettingsOverlay').classList.remove('active');
+        if (window.settingsMenu) {
+            window.settingsMenu.show();
+        } else {
+            gamePaused = false;
+        }
     }
     
     applySettings() {

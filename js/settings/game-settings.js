@@ -402,8 +402,12 @@ class GameSettings {
     }
     
     hideMenu() {
-        gamePaused = false;
         document.getElementById('gameSettingsOverlay').classList.remove('active');
+        if (window.settingsMenu) {
+            window.settingsMenu.show();
+        } else {
+            gamePaused = false;
+        }
     }
     
     applySettings() {

@@ -363,8 +363,12 @@ class GraphicsSettings {
     }
     
     hideMenu() {
-        gamePaused = false;
         document.getElementById('graphicsSettingsOverlay').classList.remove('active');
+        if (window.settingsMenu) {
+            window.settingsMenu.show();
+        } else {
+            gamePaused = false;
+        }
     }
     
     applySettings() {
