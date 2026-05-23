@@ -182,22 +182,17 @@ class GraphicsSettings {
                     <div class="preset-radio"></div>
                 </div>
             `;
+            btn.addEventListener('click', () => this.selectPreset(preset.id));
             presetsContainer.appendChild(btn);
         });
     }
-    
+
     bindEvents() {
         document.getElementById('graphicsSettingsClose').addEventListener('click', () => this.hideMenu());
-        
+
         document.getElementById('graphicsApplyBtn').addEventListener('click', () => this.applySettings());
-        
+
         document.getElementById('graphicsResetBtn').addEventListener('click', () => this.resetToDefaults());
-        
-        document.querySelectorAll('.graphics-preset').forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.selectPreset(btn.dataset.preset);
-            });
-        });
         
         document.getElementById('particlesQualitySelect').addEventListener('change', (e) => {
             this.settings.particlesQuality = e.target.value;
