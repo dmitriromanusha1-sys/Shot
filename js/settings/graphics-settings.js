@@ -9,6 +9,7 @@ class GraphicsSettings {
             antialiasing: true,
             showFPS: false,
             vsync: true,
+            resolution: '1920x1080',
             resolutionScale: 1.0,
             textureQuality: 'medium',
             lightingQuality: 'medium'
@@ -104,16 +105,16 @@ class GraphicsSettings {
                                     </label>
                                     <div class="setting-checkbox" id="showFPSToggle"></div>
                                 </div>
-                                
+
                                 <div class="setting-item">
                                     <label class="setting-label">
-                                        <i class="fas fa-expand-alt"></i> Масштаб разрешения
+                                        <i class="fas fa-desktop"></i> Разрешение
                                     </label>
-                                    <div class="setting-control">
-                                        <input type="range" min="50" max="100" value="100" 
-                                               class="setting-slider" id="resolutionScaleSlider">
-                                        <span class="setting-value" id="resolutionScaleValue">100%</span>
-                                    </div>
+                                    <select class="setting-select" id="resolutionSelect">
+                                        <option value="900x650">900×650 (По умолчанию)</option>
+                                        <option value="1280x720">1280×720 (HD)</option>
+                                        <option value="1920x1080">1920×1080 (Full HD)</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -127,7 +128,7 @@ class GraphicsSettings {
                                 </div>
                                 <div class="setting-item">
                                     <span class="setting-label">Разрешение:</span>
-                                    <span class="setting-value" id="resolutionValue">900x650</span>
+                                    <span class="setting-value" id="resolutionValue">1920×1080</span>
                                 </div>
                                 <div class="setting-item">
                                     <span class="setting-label">Режим графики:</span>
@@ -228,9 +229,9 @@ class GraphicsSettings {
             this.updateUI();
         });
         
-        document.getElementById('resolutionScaleSlider').addEventListener('input', (e) => {
-            this.settings.resolutionScale = e.target.value / 100;
-            document.getElementById('resolutionScaleValue').textContent = e.target.value + '%';
+        document.getElementById('resolutionSelect').addEventListener('change', (e) => {
+            this.settings.resolution = e.target.value;
+            this.updateUI();
         });
     }
     
@@ -247,9 +248,11 @@ class GraphicsSettings {
         document.getElementById('vsyncToggle').classList.toggle('active', this.settings.vsync);
         document.getElementById('showFPSToggle').classList.toggle('active', this.settings.showFPS);
         
-        document.getElementById('resolutionScaleSlider').value = this.settings.resolutionScale * 100;
-        document.getElementById('resolutionScaleValue').textContent = Math.round(this.settings.resolutionScale * 100) + '%';
-        
+        document.getElementById('resolutionSelect').value = this.settings.resolution || '1920x1080';
+
+        const [rw, rh] = (this.settings.resolution || '1920x1080').split('x');
+        document.getElementById('resolutionValue').textContent = `${rw}×${rh}`;
+
         document.getElementById('currentFPSValue').textContent = Math.round(this.currentFPS);
         document.getElementById('presetValue').textContent = this.getPresetName(this.settings.preset);
     }
@@ -277,7 +280,8 @@ class GraphicsSettings {
                     antialiasing: false,
                     showFPS: true,
                     vsync: false,
-                    resolutionScale: 0.8,
+                    resolution: '900x650',
+                    resolutionScale: 1.0,
                     textureQuality: 'low',
                     lightingQuality: 'low'
                 };
@@ -292,7 +296,8 @@ class GraphicsSettings {
                     antialiasing: true,
                     showFPS: false,
                     vsync: false,
-                    resolutionScale: 0.9,
+                    resolution: '1280x720',
+                    resolutionScale: 1.0,
                     textureQuality: 'low',
                     lightingQuality: 'low'
                 };
@@ -307,6 +312,7 @@ class GraphicsSettings {
                     antialiasing: true,
                     showFPS: false,
                     vsync: true,
+                    resolution: '1920x1080',
                     resolutionScale: 1.0,
                     textureQuality: 'medium',
                     lightingQuality: 'medium'
@@ -322,6 +328,7 @@ class GraphicsSettings {
                     antialiasing: true,
                     showFPS: false,
                     vsync: true,
+                    resolution: '1920x1080',
                     resolutionScale: 1.0,
                     textureQuality: 'high',
                     lightingQuality: 'high'
@@ -337,6 +344,7 @@ class GraphicsSettings {
                     antialiasing: true,
                     showFPS: true,
                     vsync: true,
+                    resolution: '1920x1080',
                     resolutionScale: 1.0,
                     textureQuality: 'high',
                     lightingQuality: 'high'
@@ -370,22 +378,36 @@ class GraphicsSettings {
     applyCanvasSettings() {
         const canvas = document.getElementById('gameCanvas');
         if (!canvas) return;
-        
+
+        const [rw, rh] = (this.settings.resolution || '1920x1080').split('x').map(Number);
+        const container = canvas.parentElement;
+
+        canvas.width = rw;
+        canvas.height = rh;
+
+        if (container) {
+            const scaleX = container.clientWidth / rw;
+            const scaleY = container.clientHeight / rh;
+            const scale = Math.min(scaleX, scaleY, 1);
+            canvas.style.width = rw + 'px';
+            canvas.style.height = rh + 'px';
+            canvas.style.transform = `scale(${scale})`;
+            canvas.style.transformOrigin = 'top left';
+            container.style.overflow = 'hidden';
+        }
+
         const ctx = canvas.getContext('2d');
-        
         ctx.imageSmoothingEnabled = this.settings.antialiasing;
         ctx.imageSmoothingQuality = this.settings.antialiasing ? 'high' : 'low';
-        
-        if (this.settings.resolutionScale !== 1.0) {
-            const originalWidth = 900;
-            const originalHeight = 650;
-            canvas.style.width = originalWidth * this.settings.resolutionScale + 'px';
-            canvas.style.height = originalHeight * this.settings.resolutionScale + 'px';
+
+        if (this.settings.blurEffects) {
+            canvas.style.filter = '';
         } else {
-            canvas.style.width = '';
-            canvas.style.height = '';
+            canvas.style.filter = 'none';
         }
-        
+
+        if (typeof resizeCanvas === 'function') resizeCanvas();
+
         window.graphicsSettings = this.settings;
     }
     

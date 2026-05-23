@@ -4,13 +4,33 @@ const STORAGE_KEY = 'neon_strike_save';
 
 function resizeCanvas() {
     const container = canvas.parentElement;
-    const w = container.clientWidth;
-    const h = container.clientHeight;
-    if (w > 0 && h > 0) {
-        canvas.width = w;
-        canvas.height = h;
-        player.y = h - 80;
-        if (player.x + player.width > w) player.x = w - player.width - 10;
+    if (!container) return;
+
+    const gs = window.graphicsSettings;
+    if (gs && gs.resolution) {
+        const [rw, rh] = gs.resolution.split('x').map(Number);
+        if (canvas.width !== rw || canvas.height !== rh) {
+            canvas.width = rw;
+            canvas.height = rh;
+        }
+        const scaleX = container.clientWidth / rw;
+        const scaleY = container.clientHeight / rh;
+        const scale = Math.min(scaleX, scaleY, 1);
+        canvas.style.width = rw + 'px';
+        canvas.style.height = rh + 'px';
+        canvas.style.transform = `scale(${scale})`;
+        canvas.style.transformOrigin = 'top left';
+        player.y = rh - 80;
+        if (player.x + player.width > rw) player.x = rw - player.width - 10;
+    } else {
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        if (w > 0 && h > 0) {
+            canvas.width = w;
+            canvas.height = h;
+            player.y = h - 80;
+            if (player.x + player.width > w) player.x = w - player.width - 10;
+        }
     }
 }
 window.addEventListener('resize', resizeCanvas);
