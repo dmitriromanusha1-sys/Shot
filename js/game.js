@@ -390,6 +390,55 @@ let laserBeam = null; // { x1, y1, x2, y2, color } — active laser ray this fra
 let killCounterFlash = 0; // 0..1, анимация при убийстве
 let bossKillSlowmo = 1.0;
 
+// ── SCREEN SHAKE ──────────────────────────────────────────────
+let screenShake = { x: 0, y: 0, intensity: 0, duration: 0, timer: 0 };
+function triggerShake(intensity, duration) {
+    if (screenShake.intensity < intensity) {
+        screenShake.intensity = intensity;
+        screenShake.duration = duration;
+        screenShake.timer = duration;
+    }
+}
+function updateShake(dt) {
+    if (screenShake.timer > 0) {
+        screenShake.timer -= dt;
+        const t = screenShake.timer / screenShake.duration;
+        const mag = screenShake.intensity * t;
+        screenShake.x = (Math.random() * 2 - 1) * mag;
+        screenShake.y = (Math.random() * 2 - 1) * mag;
+    } else {
+        screenShake.x = 0; screenShake.y = 0;
+    }
+}
+
+// ── STARFIELD ─────────────────────────────────────────────────
+const STAR_LAYERS = [
+    { count: 80,  speed: 0.015, size: 0.8,  alpha: 0.35 },
+    { count: 50,  speed: 0.04,  size: 1.4,  alpha: 0.55 },
+    { count: 20,  speed: 0.09,  size: 2.2,  alpha: 0.8  },
+];
+let stars = [];
+function initStars() {
+    stars = [];
+    STAR_LAYERS.forEach((layer, li) => {
+        for (let i = 0; i < layer.count; i++) {
+            stars.push({
+                x: Math.random(),
+                y: Math.random(),
+                layer: li,
+                twinkle: Math.random() * Math.PI * 2,
+                twinkleSpeed: 0.5 + Math.random() * 1.5,
+            });
+        }
+    });
+}
+initStars();
+
+// ── NUKE FLASH ────────────────────────────────────────────────
+let nukeFlash = 0; // 0..1 убывает
+let playerAuraFlash = 0; // вспышка при выстреле
+let killStreakGlow = 0;  // зелёная виньетка при серии
+
 let activePerks = [];
 let perkChoiceActive = false;
 let killStreakNoHit = 0;
@@ -2635,6 +2684,7 @@ function fireWeapon() {
                 color: weapon.bulletColor,
                 life: 1.0, maxLife: 1.0, kind: 'muzzle'
             });
+            playerAuraFlash = Math.min(1, playerAuraFlash + 0.6);
 
             if (shotSound && audioModule && audioModule.settings.effectsEnabled) {
                 shotSound.currentTime = 0;
@@ -3316,32 +3366,55 @@ function createDeathEffect(enemy) {
     if (!gameModule || gameModule.settings.particleEffects === false) return;
     const cx = enemy.x + enemy.width / 2;
     const cy = enemy.y + enemy.height / 2;
-    const count = enemy.type === 'finalBoss' ? 24 : enemy.type === 'boss' ? 16 : enemy.type === 'tank' ? 12 : 8;
+    const isBig = enemy.type === 'finalBoss';
+    const isBoss = enemy.type === 'boss';
+    const count = isBig ? 32 : isBoss ? 20 : enemy.type === 'tank' ? 14 : 10;
+
+    // Основные частицы смерти
     for (let i = 0; i < count; i++) {
-        const angle = (Math.PI * 2 / count) * i + Math.random() * 0.4;
-        const speed = (2 + Math.random() * 4) * (enemy.type === 'finalBoss' ? 2 : 1);
+        const angle = (Math.PI * 2 / count) * i + Math.random() * 0.5;
+        const speed = (2 + Math.random() * 5) * (isBig ? 2.5 : isBoss ? 1.6 : 1);
         effects.push({
-            x: cx, y: cy,
+            x: cx + (Math.random() - 0.5) * 10,
+            y: cy + (Math.random() - 0.5) * 10,
             vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            radius: 3 + Math.random() * (enemy.type === 'finalBoss' ? 6 : 3),
+            vy: Math.sin(angle) * speed - 1,
+            radius: 2 + Math.random() * (isBig ? 7 : isBoss ? 5 : 3),
             color: enemy.color,
-            life: 1.0,
+            life: 0.8 + Math.random() * 0.4,
             maxLife: 1.0,
             kind: 'death'
         });
     }
+    // Белые искры
+    const sparks = isBig ? 20 : isBoss ? 12 : 6;
+    for (let i = 0; i < sparks; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 3 + Math.random() * 8;
+        effects.push({
+            x: cx, y: cy,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 2,
+            radius: 1 + Math.random() * 2,
+            color: '#ffffff',
+            life: 0.4 + Math.random() * 0.4,
+            maxLife: 0.8,
+            kind: 'spark'
+        });
+    }
+    // Кольца взрыва
+    const ringColors = [enemy.color, '#ffffff', '#ffcc00'];
+    const ringCount = isBig ? 4 : isBoss ? 3 : 1;
+    for (let r = 0; r < ringCount; r++) {
+        setTimeout(() => {
+            effects.push({ x: cx, y: cy, radius: 4, color: ringColors[r % ringColors.length], life: 1.0, maxLife: 1.0, kind: 'explode_ring', targetRadius: (enemy.width * 0.7 + r * 35) * (isBig ? 2.2 : isBoss ? 1.5 : 1.1) });
+        }, r * 100);
+    }
+    // Тряска экрана
+    triggerShake(isBig ? 18 : isBoss ? 10 : enemy.type === 'tank' ? 5 : 2, isBig ? 600 : isBoss ? 400 : 150);
 
     // Специальная анимация для боссов
     if (enemy.type === 'boss' || enemy.type === 'finalBoss') {
-        const rings = enemy.type === 'finalBoss' ? 4 : 2;
-        for (let r = 0; r < rings; r++) {
-            const delay = r * 120;
-            setTimeout(() => {
-                effects.push({ x: cx, y: cy, radius: 4, color: enemy.color, life: 1.0, maxLife: 1.0, kind: 'explode_ring', targetRadius: (enemy.width + r * 40) * (enemy.type === 'finalBoss' ? 1.8 : 1.2) });
-                effects.push({ x: cx, y: cy, radius: 4, color: '#ffffff', life: 1.0, maxLife: 1.0, kind: 'explode_ring', targetRadius: (enemy.width * 0.6 + r * 25) * (enemy.type === 'finalBoss' ? 1.8 : 1.2) });
-            }, delay);
-        }
         // Текст "УНИЧТОЖЕН"
         levelUpText = {
             text: enemy.type === 'finalBoss' ? '⚠ ФИНАЛ-БОСС УНИЧТОЖЕН!' : '💀 БОСС УНИЧТОЖЕН',
@@ -3398,9 +3471,12 @@ function createLevelUpEffect() {
 
 // ─── ПИКАПЫ ───────────────────────────────────────────────────
 const PICKUP_TYPES = {
-    health: { icon: '❤', color: '#f44336', label: '+20 HP' },
-    ammo:   { icon: '⚡', color: '#ffeb3b', label: 'Патроны' },
-    coin:   { icon: '💰', color: '#ffd32d', label: '+50$' },
+    health: { icon: '❤',  color: '#f44336', label: '+20 HP'         },
+    ammo:   { icon: '⚡',  color: '#ffeb3b', label: 'Патроны'        },
+    coin:   { icon: '💰',  color: '#ffd32d', label: '+50$'           },
+    shield: { icon: '🛡',  color: '#00e5ff', label: '+30 Щит'        },
+    nuke:   { icon: '☢',  color: '#ff6d00', label: '⚡ НЮКLEAR УДАР' },
+    speed:  { icon: '💨',  color: '#69f0ae', label: '⚡ Ускорение'    },
 };
 
 function trySpawnPickup(enemy) {
@@ -3410,8 +3486,8 @@ function trySpawnPickup(enemy) {
     if (Math.random() > dropChance) return;
     // Боссы дропают аптечку чаще
     const types = (enemy.type === 'boss' || enemy.type === 'finalBoss' || enemy.type === 'megaboss')
-        ? ['health', 'health', 'ammo', 'coin']
-        : Object.keys(PICKUP_TYPES);
+        ? ['health', 'health', 'ammo', 'coin', 'shield', 'nuke']
+        : ['health', 'ammo', 'coin', 'shield', 'speed'];
     const type = types[Math.floor(Math.random() * types.length)];
     pickups.push({
         x: enemy.x + enemy.width / 2 - 14,
@@ -3452,6 +3528,26 @@ function applyPickup(type) {
         reloading = false;
     } else if (type === 'coin') {
         money += 50;
+    } else if (type === 'shield') {
+        if (shieldMax > 0) { shield = Math.min(shieldMax, shield + 30); }
+        else { health = Math.min(100, health + 15); }
+    } else if (type === 'speed') {
+        player._speedBoost = true;
+        player._speedTimer = 5000;
+    } else if (type === 'nuke') {
+        nukeFlash = 1.0;
+        triggerShake(22, 700);
+        const killed = [...enemies];
+        enemies = [];
+        killed.forEach(e => {
+            createDeathEffect(e);
+            const reward = e.reward || 15;
+            money += Math.round(reward * (activePerks.includes('double_money') ? 2 : 1));
+            enemiesKilled++;
+            combo++;
+            globalStats.totalKills++;
+        });
+        updateUI();
     }
     updateUI();
     showPickupNotification(PICKUP_TYPES[type].label);
@@ -3562,12 +3658,13 @@ function updateGame(deltaTime) {
     laserBeam = null;
 
     // A/D movement
+    const moveSpeed = player.speed * (player._speedBoost ? 1.7 : 1);
     if (keysDown['KeyA']) {
-        player.x -= player.speed;
+        player.x -= moveSpeed;
         if (player.x < 0) player.x = 0;
     }
     if (keysDown['KeyD']) {
-        player.x += player.speed;
+        player.x += moveSpeed;
         if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
     }
 
@@ -4165,28 +4262,47 @@ function drawSoldier(enemy) {
 }
 
 function drawGame() {
+    // ── Screen shake transform ──
+    ctx.save();
+    if (screenShake.timer > 0) {
+        ctx.translate(screenShake.x, screenShake.y);
+    }
+
+    // ── Background gradient ──
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#050510');
-    gradient.addColorStop(1, '#0a0a1a');
+    gradient.addColorStop(0, '#020410');
+    gradient.addColorStop(0.5, '#070918');
+    gradient.addColorStop(1, '#0a0520');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
+
+    // ── Starfield ──
     if (!graphicsModule || graphicsModule.settings.particles) {
-        ctx.strokeStyle = 'rgba(0, 255, 157, 0.05)';
+        const t = performance.now() / 1000;
+        stars.forEach(s => {
+            const layer = STAR_LAYERS[s.layer];
+            s.twinkle += layer.speed * 0.05;
+            const tw = 0.6 + Math.sin(s.twinkle * s.twinkleSpeed) * 0.4;
+            const sx = (s.x * canvas.width + t * layer.speed * 30) % canvas.width;
+            const sy = s.y * canvas.height;
+            ctx.globalAlpha = layer.alpha * tw;
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(sx, sy, layer.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+
+        // Grid
+        ctx.strokeStyle = 'rgba(0, 255, 157, 0.04)';
         ctx.lineWidth = 1;
-        
-        for (let x = 0; x < canvas.width; x += 50) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, canvas.height);
-            ctx.stroke();
+        const gridT = (performance.now() / 4000) % 1;
+        const gridOff = gridT * 50;
+        for (let x = -gridOff; x < canvas.width; x += 50) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
         }
-        
         for (let y = 0; y < canvas.height; y += 50) {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(canvas.width, y);
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
         }
     }
     
@@ -4201,6 +4317,30 @@ function drawGame() {
         const shadows = graphicsModule && graphicsModule.settings && graphicsModule.settings.shadows;
 
         ctx.save();
+
+        // PLAYER AURA (speed boost + shot flash)
+        const auraCx = Math.round(px + pw / 2);
+        const auraCy = Math.round(py + ph / 2);
+        if (player._speedBoost) {
+            const t2 = performance.now() / 200;
+            const auraR = 40 + Math.sin(t2) * 6;
+            const auraG = ctx.createRadialGradient(auraCx, auraCy, 8, auraCx, auraCy, auraR);
+            auraG.addColorStop(0, 'rgba(105,240,174,0)');
+            auraG.addColorStop(0.6, 'rgba(105,240,174,0.18)');
+            auraG.addColorStop(1, 'rgba(105,240,174,0)');
+            ctx.fillStyle = auraG;
+            ctx.beginPath(); ctx.arc(auraCx, auraCy, auraR, 0, Math.PI * 2); ctx.fill();
+        }
+        if (playerAuraFlash > 0) {
+            const skinData2 = window.skinsModule ? window.skinsModule.getCurrentSkin() : null;
+            const aGc = (skinData2 && skinData2.bulletColor) || '#00ff9d';
+            const aR = 30 + playerAuraFlash * 20;
+            const aG2 = ctx.createRadialGradient(auraCx, auraCy, 5, auraCx, auraCy, aR);
+            aG2.addColorStop(0, `rgba(255,255,255,${playerAuraFlash * 0.3})`);
+            aG2.addColorStop(1, `${aGc}00`);
+            ctx.fillStyle = aG2;
+            ctx.beginPath(); ctx.arc(auraCx, auraCy, aR, 0, Math.PI * 2); ctx.fill();
+        }
 
         // TRACKS
         ctx.fillStyle = '#151e2b';
@@ -4444,6 +4584,18 @@ function drawGame() {
                 ctx.globalAlpha = 1;
                 return;
             }
+            if (effect.kind === 'spark') {
+                const alpha = (effect.life / effect.maxLife);
+                ctx.globalAlpha = alpha;
+                ctx.strokeStyle = effect.color;
+                ctx.lineWidth = effect.radius;
+                ctx.beginPath();
+                ctx.moveTo(effect.x, effect.y);
+                ctx.lineTo(effect.x - effect.vx * 3, effect.y - effect.vy * 3);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                return;
+            }
             const alpha = effect.life / effect.maxLife;
             ctx.globalAlpha = alpha;
             ctx.fillStyle = effect.color;
@@ -4460,6 +4612,36 @@ function drawGame() {
     }
 
     drawPickups();
+
+    // ── Boss health bar ──────────────────────────────────────
+    const activeBoss = enemies.find(e => e.type === 'finalBoss' || e.type === 'boss');
+    if (activeBoss) {
+        const barW = Math.min(600, canvas.width * 0.45);
+        const barH = 18;
+        const barX = canvas.width / 2 - barW / 2;
+        const barY = 14;
+        const hp = activeBoss.health;
+        const maxHp = activeBoss.maxHealth || activeBoss.health;
+        const pct = Math.max(0, hp / maxHp);
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(barX - 2, barY - 2, barW + 4, barH + 4, 6); else ctx.rect(barX - 2, barY - 2, barW + 4, barH + 4); ctx.fill();
+        const bgrad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+        bgrad.addColorStop(0, activeBoss.type === 'finalBoss' ? '#ff1744' : '#f44336');
+        bgrad.addColorStop(1, activeBoss.type === 'finalBoss' ? '#ff6d00' : '#ff8f00');
+        ctx.fillStyle = bgrad;
+        if(ctx.roundRect) { ctx.beginPath(); ctx.roundRect(barX, barY, barW * pct, barH, 4); ctx.fill(); }
+        else { ctx.fillRect(barX, barY, barW * pct, barH); }
+        ctx.strokeStyle = activeBoss.color;
+        ctx.lineWidth = 2;
+        if (graphicsModule && graphicsModule.settings.shadows) { ctx.shadowColor = activeBoss.color; ctx.shadowBlur = 10; }
+        ctx.strokeRect(barX, barY, barW, barH);
+        ctx.shadowBlur = 0;
+        ctx.font = 'bold 11px "Segoe UI"';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#fff';
+        ctx.fillText(`${activeBoss.type === 'finalBoss' ? '⚠ ФИНАЛЬНЫЙ БОСС' : '💀 КОМАНДИР'} — ${Math.ceil(hp)} HP`, canvas.width / 2, barY + barH + 14);
+        ctx.textAlign = 'left';
+    }
 
     enemyBullets.forEach(eb => {
         ctx.fillStyle = eb.color;
@@ -4487,7 +4669,7 @@ function drawGame() {
         ctx.textAlign = 'left';
     }
     
-    // Флеш урона — красная виньетка по краям
+    // ── Damage flash (red vignette) ──
     if (damageFlash > 0) {
         const flashGrad = ctx.createRadialGradient(
             canvas.width / 2, canvas.height / 2, canvas.height * 0.3,
@@ -4498,6 +4680,27 @@ function drawGame() {
         ctx.fillStyle = flashGrad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
+
+    // ── Kill streak green glow vignette ──
+    if (killStreakGlow > 0) {
+        const kgGrad = ctx.createRadialGradient(
+            canvas.width / 2, canvas.height / 2, canvas.height * 0.35,
+            canvas.width / 2, canvas.height / 2, canvas.height * 0.9
+        );
+        kgGrad.addColorStop(0, 'rgba(0,255,157,0)');
+        kgGrad.addColorStop(1, `rgba(0,255,157,${killStreakGlow * 0.28})`);
+        ctx.fillStyle = kgGrad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // ── Nuke flash (white/orange) ──
+    if (nukeFlash > 0) {
+        ctx.fillStyle = `rgba(255,180,50,${nukeFlash * 0.75})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // ── Close screen shake transform ──
+    ctx.restore();
 
     if (reloading) {
         const weapon = weapons[player.weapon];
@@ -5139,9 +5342,21 @@ function gameLoop(timestamp) {
     lastTime = timestamp;
     const deltaTime = rawDelta * bossKillSlowmo;
 
+    // Fade global effects
+    nukeFlash = Math.max(0, nukeFlash - rawDelta / 400);
+    playerAuraFlash = Math.max(0, playerAuraFlash - rawDelta / 150);
+    killStreakGlow = streakBuff.active ? Math.min(1, killStreakGlow + rawDelta / 500) : Math.max(0, killStreakGlow - rawDelta / 800);
+    updateShake(rawDelta);
+
+    // Speed boost pickup timer
+    if (player._speedBoost) {
+        player._speedTimer = (player._speedTimer || 0) - rawDelta;
+        if (player._speedTimer <= 0) { player._speedBoost = false; }
+    }
+
     updateGame(deltaTime);
     drawGame();
-    
+
     requestAnimationFrame(gameLoop);
 }
 
