@@ -21,7 +21,7 @@ class AudioSettings {
             folder: 'music/',
             namingPattern: 'track',
             extensions: ['mp3', 'ogg', 'wav', 'm4a'],
-            trackCount: 10
+            trackCount: 2
         };
         
         this.tracks = [];

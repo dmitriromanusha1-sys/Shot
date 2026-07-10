@@ -1252,15 +1252,18 @@ function enterMenuState() {
             layout.classList.remove('fade-out');
             mainMenu.classList.remove('hidden');
             updateMenuStats();
+            if (audioModule) audioModule.playTrack(0);
         }, 340);
     } else {
         document.body.classList.add('game-hidden');
         mainMenu.classList.remove('hidden');
         updateMenuStats();
+        if (audioModule) audioModule.playTrack(0);
     }
 }
 
 function enterGameState() {
+    if (audioModule) audioModule.playTrack(1);
     const layout = document.querySelector('.game-layout');
     document.body.classList.remove('game-hidden');
     mainMenu.classList.add('hidden');
